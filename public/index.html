@@ -28,7 +28,7 @@ form.addEventListener("submit", async (e) => {
   const formData = new FormData(form);
   const res = await fetch("/upload", { method: "POST", body: formData });
   const data = await res.json();
-  result.innerHTML = `<a href="${data.link}" target="_blank">Download Link</a>`;
+  result.innerHTML = `<a href="${data.link}" target="_blank">Download File</a>`;
 });
 </script>
 
