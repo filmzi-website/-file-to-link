@@ -1,5 +1,4 @@
 import fs from "fs";
-import path from "path";
 import FormData from "form-data";
 import fetch from "node-fetch";
 import multer from "multer";
@@ -8,7 +7,7 @@ const upload = multer({ dest: "/tmp" });
 
 export const config = {
   api: {
-    bodyParser: false, // disable default body parsing
+    bodyParser: false,
   },
 };
 
@@ -20,7 +19,7 @@ export default function handler(req, res) {
 
       try {
         const form = new FormData();
-        form.append("file", fs.createReadStream(req.file.path));
+        form.append("file", fs.createReadStream(req.file.path), req.file.originalname);
 
         const response = await fetch("https://pixeldrain.com/api/file", {
           method: "POST",
@@ -28,12 +27,17 @@ export default function handler(req, res) {
         });
 
         const data = await response.json();
-        fs.unlinkSync(req.file.path); // cleanup temp
+        fs.unlinkSync(req.file.path);
 
-        // Return direct download link
+        if (!data.id) {
+          return res.status(500).json({ error: "Pixeldrain upload failed" });
+        }
+
         res.json({
-          link: `https://pixeldrain.com/api/file/${data.id}?download`,
+          id: data.id,
           preview: `https://pixeldrain.com/u/${data.id}`,
+          direct: `https://pixeldrain.com/api/file/${data.id}?download`,
+          page: `/d/${data.id}`
         });
       } catch (error) {
         res.status(500).json({ error: error.message });
