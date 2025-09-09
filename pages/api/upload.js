@@ -7,7 +7,7 @@ const upload = multer({ dest: "/tmp" });
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // disable Next.js body parser
   },
 };
 
