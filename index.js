@@ -10,14 +10,15 @@ const app = express();
 const upload = multer({ dest: "temp/" });
 const LINKS_FILE = "links.json";
 
-app.use(express.static("public"));
-app.use(express.json());
-
-// Load existing links
+// Load existing links or initialize
 let links = {};
 if (fs.existsSync(LINKS_FILE)) {
   links = JSON.parse(fs.readFileSync(LINKS_FILE));
 }
+
+// Serve frontend
+app.use(express.static("public"));
+app.use(express.json());
 
 // Upload endpoint
 app.post("/upload", upload.single("file"), async (req, res) => {
@@ -45,13 +46,13 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
-// Redirect endpoint for direct download
+// Redirect endpoint (direct download)
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   if (!links[id]) return res.status(404).send("File not found");
-  
-  // Redirect with forced download
+
   const file = links[id];
+  // Redirect with forced download
   res.redirect(`${file.link}?download=true`);
 });
 
